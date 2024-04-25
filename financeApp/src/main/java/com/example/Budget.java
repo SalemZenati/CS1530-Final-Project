@@ -2,17 +2,29 @@ package com.example;
 
 public class Budget {
     
+    private int bid;
     private String name;
     private double budgetAmount;
     private double budgetSpent;
     private double budgetLeft;
 
-    public Budget(String name, double budgetAmount, double budgetSpent){
+    public Budget(int bid, String name, double budgetAmount, double budgetSpent){
+        this.bid = bid;
         this.name = name;
         this.budgetAmount = budgetAmount;
         this.budgetSpent = budgetSpent;
         this.budgetLeft = (budgetAmount - budgetSpent);
     }
+
+    public int getBid(){
+        return this.bid;
+    }
+    /*getters to add; 
+     * getName()
+     * getBudgetAmount()
+     * getBudgetSpent()
+     * getBudgetLeft()
+     */
 
     public void updateName(String name){
         this.name = name;
