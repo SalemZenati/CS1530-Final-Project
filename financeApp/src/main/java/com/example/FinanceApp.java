@@ -11,7 +11,11 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
 
 public class FinanceApp extends Application {
 
@@ -49,21 +53,97 @@ public class FinanceApp extends Application {
         primaryStage.show();
     }
 
+    //--------------------------------- BUDGET TAB --------------------------------------
+
+    private Text budgetDisplay = new Text();  // Class member for budget display
+
     private VBox createBudgetView() {
         VBox budgetView = new VBox(10);
         budgetView.setPadding(new Insets(15));
         budgetView.setAlignment(Pos.TOP_CENTER);
-
+    
         Text title = new Text("Budget Management");
         title.setFont(new Font(20));
-
-        // Add components to budgetView here, like labels, text fields, and buttons
-        // ...
-
-        budgetView.getChildren().add(title);
-
+    
+        ObservableList<Budget> budgetList = FXCollections.observableArrayList();  // List to store budgets
+    
+        ComboBox<Budget> budgetComboBox = new ComboBox<>(budgetList);
+        budgetComboBox.setPromptText("Select a budget");
+        budgetComboBox.setCellFactory(lv -> new ListCell<Budget>() {
+            @Override
+            protected void updateItem(Budget item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : item.getName() + " - $" + item.getBudgetAmount());
+            }
+        });
+    
+        budgetComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                updateBudgetDisplay(newVal);  // Update display with selected budget
+            }
+        });
+    
+        Label budgetNameLabel = new Label("Budget Name:");
+        TextField budgetNameField = new TextField();
+        budgetNameField.setPromptText("Enter budget name");
+    
+        Label budgetAmountLabel = new Label("Set Budget Amount:");
+        TextField budgetAmountField = new TextField();
+        budgetAmountField.setPromptText("Enter total budget amount");
+    
+        Label budgetSpentLabel = new Label("Amount Already Spent:");
+        TextField budgetSpentField = new TextField();
+        budgetSpentField.setPromptText("Enter amount already spent");
+    
+        Button setBudgetButton = new Button("Create/Update Budget");
+        setBudgetButton.setOnAction(e -> {
+            try {
+                String name = budgetNameField.getText();
+                double budgetAmount = Double.parseDouble(budgetAmountField.getText());
+                double budgetSpent = Double.parseDouble(budgetSpentField.getText());
+    
+                int budgetId = getBudgetId(name); // Assume method exists for fetching or creating a unique ID
+                Budget budget = new Budget(budgetId, name, budgetAmount, budgetSpent);
+                budget.updateBudgetAmount(budgetAmount);
+                budget.updateBudgetSpent(budgetSpent);
+    
+                saveBudget(budget, budgetList);  // Adjusted to handle the list
+                showAlert(AlertType.INFORMATION, "Success", "Budget has been successfully created/updated.");
+            } catch (NumberFormatException ex) {
+                showAlert(AlertType.ERROR, "Error", "Please enter valid numbers for budget amounts.");
+            }
+        });
+    
+        budgetView.getChildren().addAll(title, budgetComboBox, budgetNameLabel, budgetNameField, budgetAmountLabel, budgetAmountField, budgetSpentLabel, budgetSpentField, setBudgetButton, budgetDisplay);
+    
         return budgetView;
     }
+    
+    private void updateBudgetDisplay(Budget budget) {
+        budgetDisplay.setText("Budget: " + budget.getName() +
+                        "\nTotal Amount: " + budget.getBudgetAmount() +
+                        "\nAmount Spent: " + budget.getBudgetSpent() +
+                        "\nRemaining Budget: " + budget.getBudgetLeft());
+    }
+
+    private int getBudgetId(String name) {
+        return name.hashCode(); 
+    }
+
+    private void saveBudget(Budget budget, ObservableList<Budget> budgetList) {
+        budgetList.removeIf(b -> b.getBid() == budget.getBid()); // Remove old instance if exists
+        budgetList.add(budget);  // Add the new or updated budget
+    }
+    
+    private void showAlert(AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    // --------------------------------- MONITOR TAB --------------------------------------
 
     private VBox createMonitorView() {
         VBox monitorView = new VBox(10);
@@ -80,7 +160,7 @@ public class FinanceApp extends Application {
 
         return monitorView;
     }
-
+    // --------------------------------- SPENDING TAB --------------------------------------    
     // Extra tabs for "future implementation"
 
     private VBox createSpendingView() {

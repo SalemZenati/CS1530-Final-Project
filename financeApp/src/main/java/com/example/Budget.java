@@ -54,4 +54,9 @@ public class Budget {
         return this.budgetLeft;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s - Goal: $%.2f, Spent: $%.2f, Remaining: $%.2f", name, budgetAmount, budgetSpent, budgetLeft);
+    }
+
 }
