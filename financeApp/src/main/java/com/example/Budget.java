@@ -55,7 +55,11 @@ public class Budget {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
+        return String.format("%s - Goal: $%.2f, Spent: $%.2f, Remaining: $%.2f", name, budgetAmount, budgetSpent, budgetLeft);
+    }
+
+    public String formatForFile(){
         //returns a string representation of the budget for use in writing to file
         return "BID:" + this.bid + "{\n" +
                 "budgetName:" + this.name + "\n" +

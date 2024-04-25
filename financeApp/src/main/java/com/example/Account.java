@@ -35,5 +35,10 @@ public class Account {
         this.balance = balance;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: Balance $%.2f", accountType, balance);
+    }
+
     //Addition of accounts feature(s) could go here...
 }
