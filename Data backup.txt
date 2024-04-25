@@ -8,7 +8,7 @@ numAccounts:1
 numPlans:0
 numBudgets:2
 accounts{
-ACID:1{
+AID:1{
 accountType:Checking
 balance:1000.00
 }
@@ -37,11 +37,11 @@ numAccounts:2
 numPlans:0
 numBudgets:1
 accounts{
-ACID:1{
+AID:1{
 accountType:Checking
 balance:1000.00
 }
-ACID:2{
+AID:2{
 accountType:Savings
 balance:15021.34
 }

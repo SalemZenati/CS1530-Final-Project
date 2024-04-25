@@ -1,22 +1,22 @@
 package com.example;
 
 public class Account {
-    private int acid;
+    private int aid;
     private String accountType;
     private double balance;
 
-    public Account(int acid, String accountType, double balance) {
-        this.acid = acid;
+    public Account(int aid, String accountType, double balance) {
+        this.aid = aid;
         this.accountType = accountType;
         this.balance = balance;
     }
 
-    public int getAcid() {
-        return acid;
+    public int getAid() {
+        return aid;
     }
 
-    public void setAcid(int acid) {
-        this.acid = acid;
+    public void setAid(int aid) {
+        this.aid = aid;
     }
 
     public String getAccountType() {

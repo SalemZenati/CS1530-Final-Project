@@ -1,5 +1,7 @@
 package com.example;
 
+import java.io.FileNotFoundException;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -121,6 +123,13 @@ public class FinanceApp extends Application {
     }
 
     public static void main(String[] args) {
+        //reads data from file
+        try{
+            Parser.readDataFromFile("Data.txt");
+        } catch (FileNotFoundException e){
+            System.out.println("File not found... exiting.");
+            System.exit(0);
+        }
         launch(args);
     }
 }
