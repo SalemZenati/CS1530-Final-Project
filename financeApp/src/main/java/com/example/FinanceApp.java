@@ -138,6 +138,8 @@ public class FinanceApp extends Application {
         int good = users.get(0).addBudget(budget);
         System.out.println(good);
 
+        
+
         launch(args);
     }
 }

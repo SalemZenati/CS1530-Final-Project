@@ -1,8 +1,13 @@
 package com.example;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -131,12 +136,7 @@ public class User {
         numBudgets++;
 
         //prop changes to file
-        try{
-            updateBudgetsInFile();
-        } catch (IOException e) {
-            System.out.println("Error updating budgets in file");
-            return 0;//budget not added
-        }
+        updateBudgets();
         return 1;//budget added
     }
 
@@ -145,11 +145,9 @@ public class User {
         numBudgets++;
 
         //prop changes to file
-        try{
-            updateBudgetsInFile();
-        } catch (IOException e) {
-            System.out.println("Error updating budgets in file");
-            return 0;//budget not added
+        updateBudgets();        
+        for (int i = 0; i < budgets.size(); i++) {
+            System.out.println(budgets.size());
         }
         return 1;//budget added
     }
@@ -159,12 +157,7 @@ public class User {
             if (budgets.get(i).getBid() == bid) {
                 budgets.remove(i);
                 numBudgets--;
-                try{
-                    updateBudgetsInFile();
-                } catch (IOException e) {
-                    System.out.println("Error updating budgets in file");
-                    return 0;//budget not removed
-                }
+                updateBudgets();
 
                 return 1;//budget removed
 
@@ -174,50 +167,62 @@ public class User {
         return 0;//budget not found
     }
 
-    private void updateBudgetsInFile() throws IOException {
+    //private void updateBudgets() {
+        //iterate through data file to find user who's id matches this user's id
+            //this can be accomplished by reading file, and checking the uuid of each user, it it
+            //doesn't match, check that user's num of accounts, plans, and budgets, and skip that many lines
+            //respectively, based on those numbers, then check the next user's uuid, and repeat until the
+            //correct user is found
+        //once the correct user is found, use their num of accounts, plans, and budgets to skip the budget section
+        //remove all budgets for that user, such that the budgets section would just be
+        //budgets{
+        //}
+        //then iterate over budgets list for user, and write each budget to the file using the toString method
+        
+    private void updateBudgets() {
         File file = new File("Data.txt");
-        StringBuilder newContent = new StringBuilder();
-        Scanner scanner = new Scanner(file);
-        boolean insideCorrectUser = false;
-
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-
-            // Check if we are entering the section of the correct user
-            if (line.startsWith("UUID:" + uuid + "{")) {
-                insideCorrectUser = true;
-            }
-
-            if (insideCorrectUser && line.trim().equals("budgets{")) {
-                // Add existing budgets
-                newContent.append(line).append("\n");
-                for (Budget b : budgets) {
-                    newContent.append("BID:").append(b.getBid()).append("{\n");
-
-                    newContent.append("budgetName:").append(b.getName()).append("\n");
-                    newContent.append("budgetAmount:").append(b.getBudgetAmount()).append("\n");
-                    newContent.append("budgetSpent:").append(b.getBudgetSpent()).append("\n");
-                    newContent.append("}\n");
+        List<String> lines = new ArrayList<>();
+        boolean withinUser = false;
+        boolean withinBudgets = false;
+    
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                // Check if line contains the UUID of the user we want to update
+                if (line.contains("UUID:" + this.uuid)) {
+                    withinUser = true; // We are within the correct user's block
                 }
-                // Skip the old budgets
-                while (!line.trim().equals("}")) {
-                    line = scanner.nextLine();
+                if (withinUser) {
+                    if (line.contains("budgets{")) {
+                        withinBudgets = true; // Start of budgets block
+                        lines.add(line); // Add "budgets{" line
+                        continue; // Skip adding any budgets within the original block
+                    } else if (line.trim().equals("}") && withinBudgets) {
+                        // We're at the end of the original budgets block
+                        for (Budget budget : budgets) {
+                            lines.add(budget.toString()); // Add each new/updated budget
+                        }
+                        lines.add("}"); // Close the budgets block
+                        withinBudgets = false; // Exit the budgets block
+                        continue;
+                    } else if (line.contains("}") && withinUser) {
+                        withinUser = false; // We're at the end of the user's block
+                    }
+                }
+                // If we're not updating or within the budgets block, add the line normally
+                if (!withinBudgets) {
+                    lines.add(line);
                 }
             }
-
-            // Check if we are exiting the section of the correct user
-            if (insideCorrectUser && line.startsWith("UUID:") && !line.startsWith("UUID:" + uuid)) {
-                insideCorrectUser = false;
-            }
-
-            newContent.append(line).append("\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-
-        scanner.close();
-
-        // Write the new content back to the file
-        FileWriter writer = new FileWriter(file);
-        writer.write(newContent.toString());
-        writer.close();
-    }
+    
+        // Write all lines back to the file
+        try {
+            Files.write(file.toPath(), lines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }   
 }

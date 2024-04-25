@@ -54,4 +54,14 @@ public class Budget {
         return this.budgetLeft;
     }
 
+    @Override
+    public String toString(){
+        //returns a string representation of the budget for use in writing to file
+        return "BID:" + this.bid + "{\n" +
+                "budgetName:" + this.name + "\n" +
+                "budgetAmount:" + this.budgetAmount + "\n" +
+                "budgetSpent:" + this.budgetSpent + "\n" +
+                "}";
+    }
+
 }
