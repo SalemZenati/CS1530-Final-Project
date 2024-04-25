@@ -32,4 +32,20 @@ public class Budget {
         this.budgetLeft = (this.budgetAmount - this.budgetSpent);
     }
 
+    public String getName(){
+        return this.name;
+    }
+
+    public double getBudgetAmount(){
+        return this.budgetAmount;
+    }
+
+    public double getBudgetSpent(){
+        return this.budgetSpent;
+    }
+
+    public double getBudgetLeft(){
+        return this.budgetLeft;
+    }
+
 }
