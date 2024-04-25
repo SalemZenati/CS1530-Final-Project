@@ -212,14 +212,7 @@ public class FinanceApp extends Application {
             System.out.println("File not found... exiting.");
             System.exit(0);
         }
-
-        Budget budget = new Budget(1, "Groceries", 100.0, 50.0);
-
-        int good = users.get(0).addBudget(budget);
-        System.out.println(good);
-
         
-
         launch(args);
     }
 }

@@ -2,9 +2,7 @@ package com.example;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -115,6 +113,7 @@ public class User {
         numAccounts++;
     }
 
+    //Note that this method does not call for file updates, but the feature could be added realatively easily
     public int removeAccount(int aid) {
         for (int i = 0; i < accounts.size(); i++) {
             if (accounts.get(i).getAid() == aid) {
@@ -130,99 +129,101 @@ public class User {
         return budgets;
     }
 
-    public int addBudget(int bid, String budgetName, double budgetAmount, double budgetSpent) {
+    //Parser specific add method, doesn't increment numBudgets or call for file updates
+    //as file will still be being read when this is called
+    public int addBudgetParser(int bid, String budgetName, double budgetAmount, double budgetSpent) {
         Budget budget = new Budget(bid, budgetName, budgetAmount, budgetSpent);
         budgets.add(budget);
-        numBudgets++;
-
-        //prop changes to file
-        updateBudgets();
         return 1;//budget added
     }
 
+    //General purpose add method, increments numBudgets and calls for file updates
     public int addBudget(Budget budget) {
         budgets.add(budget);
         numBudgets++;
-
-        //prop changes to file
-        updateBudgets();        
-        for (int i = 0; i < budgets.size(); i++) {
-            System.out.println(budgets.size());
-        }
+        updateBudgets(uuid);
         return 1;//budget added
     }
 
+    //General purpose remove method, decrements numBudgets and calls for file updates
     public int removeBudget(int bid) {
         for (int i = 0; i < budgets.size(); i++) {
             if (budgets.get(i).getBid() == bid) {
                 budgets.remove(i);
                 numBudgets--;
-                updateBudgets();
+                updateBudgets(uuid);
 
-                return 1;//budget removed
-
-                
+                return 1;//budget removed successfully                
             }
         }
-        return 0;//budget not found
+        return 0;//budget not found or error occurred
     }
-
-    //private void updateBudgets() {
-        //iterate through data file to find user who's id matches this user's id
-            //this can be accomplished by reading file, and checking the uuid of each user, it it
-            //doesn't match, check that user's num of accounts, plans, and budgets, and skip that many lines
-            //respectively, based on those numbers, then check the next user's uuid, and repeat until the
-            //correct user is found
-        //once the correct user is found, use their num of accounts, plans, and budgets to skip the budget section
-        //remove all budgets for that user, such that the budgets section would just be
-        //budgets{
-        //}
-        //then iterate over budgets list for user, and write each budget to the file using the toString method
-        
-    private void updateBudgets() {
+    
+    
+    private void updateBudgets(int idToUpdate) {
         File file = new File("Data.txt");
         List<String> lines = new ArrayList<>();
-        boolean withinUser = false;
-        boolean withinBudgets = false;
+        int uuidSectionWithin = -1; //UUID of the user section currently being processed during file operations
+        boolean isUserSection = false; //track if we're currently in a user section
+        boolean skipBudgets = false;   //track if we're currently in the budgets block of the user section
     
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                // Check if line contains the UUID of the user we want to update
-                if (line.contains("UUID:" + this.uuid)) {
-                    withinUser = true; // We are within the correct user's block
+    
+                //check if current line is start of a user section
+                if (line.startsWith("UUID:")) {
+                    //if is, update uuidSectionWithin and set isUserSection flag to true
+                    uuidSectionWithin = Integer.parseInt((line.substring(5, line.length() - 1)));
+                    isUserSection = true;
                 }
-                if (withinUser) {
-                    if (line.contains("budgets{")) {
-                        withinBudgets = true; // Start of budgets block
-                        lines.add(line); // Add "budgets{" line
-                        continue; // Skip adding any budgets within the original block
-                    } else if (line.trim().equals("}") && withinBudgets) {
-                        // We're at the end of the original budgets block
-                        for (Budget budget : budgets) {
-                            lines.add(budget.toString()); // Add each new/updated budget
-                        }
-                        lines.add("}"); // Close the budgets block
-                        withinBudgets = false; // Exit the budgets block
-                        continue;
-                    } else if (line.contains("}") && withinUser) {
-                        withinUser = false; // We're at the end of the user's block
+    
+                //if current line is end of user section, reset the flags
+                if (line.equals("}u") && isUserSection) {
+                    uuidSectionWithin = -1; // Reset the UUID as we're now outside a user block
+                    isUserSection = false;
+                }
+    
+                //if in correct user section, update the numBudgets line for that user
+                if (isUserSection && uuidSectionWithin == idToUpdate && line.startsWith("numBudgets:")) {
+                    line = "numBudgets:" + budgets.size();
+                }
+    
+                //if is start of budgets section and user is correct...
+                if (line.equals("budgets{") && uuidSectionWithin == idToUpdate) {
+                    skipBudgets = true;//this section will be skipped upon read-in from file (being replaced with new data)
+                    lines.add(line);//add opening line read from file
+    
+                    for (Budget budget : budgets) {//iter over all user's budgets
+                        lines.add(budget.formatForFile());//add all updated budget data
                     }
+    
+                    while (scanner.hasNextLine() && !line.equals("}b")) {
+                        line = scanner.nextLine();//pass over the old budget data
+                    }
+                    lines.add("}b");//add closing line for budgets section
+                    skipBudgets = false;//stop skipping lines
+                    continue;
                 }
-                // If we're not updating or within the budgets block, add the line normally
-                if (!withinBudgets) {
+    
+                //add all regular lines to line list
+                if (!skipBudgets) {
                     lines.add(line);
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("'Data.txt' file not found in root folder of program... exiting.");
+            System.exit(0);
         }
     
-        // Write all lines back to the file
+        //attempt to write the updated data back to the file, overwriting the old data
         try {
             Files.write(file.toPath(), lines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error propagating budget data to database (Data.txt file)...");
+            //non-critical error, do not exit
         }
-    }   
+    }
+        
+        
 }

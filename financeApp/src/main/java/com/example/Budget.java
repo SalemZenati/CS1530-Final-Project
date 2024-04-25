@@ -60,12 +60,12 @@ public class Budget {
     }
 
     public String formatForFile(){
-        //returns a string representation of the budget for use in writing to file
+        //returns a string representation of a given budget for use in writing to file
         return "BID:" + this.bid + "{\n" +
                 "budgetName:" + this.name + "\n" +
                 "budgetAmount:" + this.budgetAmount + "\n" +
                 "budgetSpent:" + this.budgetSpent + "\n" +
-                "}";
+                "}" + getBid();
     }
 
 }

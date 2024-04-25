@@ -74,8 +74,12 @@ public class Parser {
                     double budgetSpent = Double.parseDouble(temp.substring(12,temp.length()));
                     scanner.nextLine();//pass closing line per budget
 
-                    Budget budget = new Budget(bid, budgetName, budgetAmount, budgetSpent);
-                    user.addBudget(budget);
+                    //Budget budget = new Budget();
+                    user.addBudgetParser(bid, budgetName, budgetAmount, budgetSpent);
+
+                    //account for these budgets already having been counted when file was read
+                    //and that .addBudget() increments the count
+                    user.setNumBudgets(user.getNumBudgets() - 1);
                 }
                 scanner.nextLine();//pass budgets} closing line
 
