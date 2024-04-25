@@ -125,8 +125,14 @@ public class User {
         return 0;//account not found
     }
 
+    //upon accessing budgets, file will be updated to reflect any changes since last access, addition, or removal of budgets
     public List<Budget> getBudgets() {
+        updateBudgets(uuid);
         return budgets;
+        }
+
+    public void propagateBudgets() {
+        updateBudgets(uuid);
     }
 
     //Parser specific add method, doesn't increment numBudgets or call for file updates
