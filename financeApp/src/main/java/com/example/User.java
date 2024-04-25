@@ -125,19 +125,33 @@ public class User {
         return budgets;
     }
 
-    public void addBudget(int bid, String budgetName, double budgetAmount, double budgetSpent) {
+    public int addBudget(int bid, String budgetName, double budgetAmount, double budgetSpent) {
         Budget budget = new Budget(bid, budgetName, budgetAmount, budgetSpent);
         budgets.add(budget);
         numBudgets++;
 
         //prop changes to file
+        try{
+            updateBudgetsInFile();
+        } catch (IOException e) {
+            System.out.println("Error updating budgets in file");
+            return 0;//budget not added
+        }
+        return 1;//budget added
     }
 
-    public void addBudget(Budget budget) {
+    public int addBudget(Budget budget) {
         budgets.add(budget);
         numBudgets++;
 
         //prop changes to file
+        try{
+            updateBudgetsInFile();
+        } catch (IOException e) {
+            System.out.println("Error updating budgets in file");
+            return 0;//budget not added
+        }
+        return 1;//budget added
     }
 
     public int removeBudget(int bid) {
@@ -145,9 +159,16 @@ public class User {
             if (budgets.get(i).getBid() == bid) {
                 budgets.remove(i);
                 numBudgets--;
+                try{
+                    updateBudgetsInFile();
+                } catch (IOException e) {
+                    System.out.println("Error updating budgets in file");
+                    return 0;//budget not removed
+                }
+
                 return 1;//budget removed
 
-                //prop changes to file
+                
             }
         }
         return 0;//budget not found
@@ -173,11 +194,9 @@ public class User {
                 for (Budget b : budgets) {
                     newContent.append("BID:").append(b.getBid()).append("{\n");
 
-                    //Awaiting implementation of getters in Budget.java
-
-                    //newContent.append("budgetName:").append(b.getName()).append("\n");
-                    //newContent.append("budgetAmount:").append(b.getBudgetAmount()).append("\n");
-                    //newContent.append("budgetSpent:").append(b.getBudgetSpent()).append("\n");
+                    newContent.append("budgetName:").append(b.getName()).append("\n");
+                    newContent.append("budgetAmount:").append(b.getBudgetAmount()).append("\n");
+                    newContent.append("budgetSpent:").append(b.getBudgetSpent()).append("\n");
                     newContent.append("}\n");
                 }
                 // Skip the old budgets
