@@ -19,12 +19,6 @@ public class Budget {
     public int getBid(){
         return this.bid;
     }
-    /*getters to add; 
-     * getName()
-     * getBudgetAmount()
-     * getBudgetSpent()
-     * getBudgetLeft()
-     */
 
     public void updateName(String name){
         this.name = name;
