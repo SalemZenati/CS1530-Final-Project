@@ -21,7 +21,7 @@ FinanceApp is a comprehensive financial management desktop application developed
 - Java 11 or higher
 - JavaFX SDK
 - Maven (to handle dependencies and build the project)
-- Any IDE that supports Java (e.g., IntelliJ IDEA, Eclipse)
+- Any IDE that supports Java (e.g., IntelliJ IDEA, Eclipse, VS Code)
 
 ### Installation
 
