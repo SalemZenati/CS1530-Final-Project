@@ -97,12 +97,6 @@ public class FinanceApp extends Application {
             }
         });
     
-        budgetComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                updateBudgetDisplay(newVal);  // Update display with selected budget
-            }
-        });
-    
         Label budgetNameLabel = new Label("Budget Name:");
         TextField budgetNameField = new TextField();
         budgetNameField.setPromptText("Enter budget name");
@@ -122,8 +116,19 @@ public class FinanceApp extends Application {
                 double budgetAmount = Double.parseDouble(budgetAmountField.getText());
                 double budgetSpent = Double.parseDouble(budgetSpentField.getText());
     
-                int budgetId = getBudgetId(name); // Assume method exists for fetching or creating a unique ID
-                Budget budget = new Budget(budgetId, name, budgetAmount, budgetSpent);
+                //budget list
+                List<Budget> listBudgets = users.get(0).getBudgets();
+                System.out.println("List of budgets: " + listBudgets);
+                int remvoedID = listBudgets.size() + 1;
+                for (Budget budget : listBudgets) {
+                    if (budget.getName().equals(name)) {
+                        remvoedID = budget.getBid();
+                        users.get(0).removeBudget(budget.getBid());  // Remove the existing budget
+                        budgetList.remove(budget);  // Remove the existing budget
+                    }
+                }
+                Budget budget = new Budget(remvoedID, name, budgetAmount, budgetSpent);
+                users.get(0).addBudget(budget);  // Add the new or updated budget
                 budget.updateBudgetAmount(budgetAmount);
                 budget.updateBudgetSpent(budgetSpent);
     
@@ -131,6 +136,12 @@ public class FinanceApp extends Application {
                 showAlert(AlertType.INFORMATION, "Success", "Budget has been successfully created/updated.");
             } catch (NumberFormatException ex) {
                 showAlert(AlertType.ERROR, "Error", "Please enter valid numbers for budget amounts.");
+            }
+        });
+
+        budgetComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                updateBudgetDisplay(newVal, budgetNameField, budgetAmountField, budgetSpentField);  // Update display with selected budget
             }
         });
     
@@ -150,11 +161,15 @@ public class FinanceApp extends Application {
         return budgetView;
     }
      
-    private void updateBudgetDisplay(Budget budget) {
+    private void updateBudgetDisplay(Budget budget, TextField budgetNameField, TextField budgetAmountField, TextField budgetSpentField) {
         budgetDisplay.setText("Budget: " + budget.getName() +
                         "\nTotal Amount: " + budget.getBudgetAmount() +
                         "\nAmount Spent: " + budget.getBudgetSpent() +
                         "\nRemaining Budget: " + budget.getBudgetLeft());
+        budgetNameField.setText(budget.getName());
+        budgetAmountField.setText(String.valueOf(budget.getBudgetAmount()));
+        budgetSpentField.setText(String.valueOf(budget.getBudgetSpent()));
+        System.out.println("Budget: " + budget.getName() + " - Remaining: " + budget.getBudgetLeft() + " " + budget.getBid());
     }
 
     private int getBudgetId(String name) {
@@ -162,7 +177,10 @@ public class FinanceApp extends Application {
     }
 
     private void saveBudget(Budget budget, ObservableList<Budget> budgetList) {
-        budgetList.removeIf(b -> b.getBid() == budget.getBid()); // Remove old instance if exists
+        if (budgetList.contains(budget)) {
+            budgetList.remove(budget);  // Remove the existing budget
+            users.get(0).removeBudget(budget.getBid());  // Remove the budget from the user
+        }
         budgetList.add(budget);  // Add the new or updated budget
     }
     

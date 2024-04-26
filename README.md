@@ -34,6 +34,11 @@ FinanceApp is a comprehensive financial management desktop application developed
 
    - Download JavaFX SDK and configure it in your IDE. Ensure that the SDK's `lib` directory is added to your project's library path.
 
+3. **Set up/Install Maven**:
+
+   - Download Maven to your system and configure it in your IDE. Ensure that the Maven's `bin` directory is added to your system's PATH, this should
+   be done for you upon compilation, but check to make sure.
+
 3. **Compile and run the application**:
 
    Depending on your IDE, you can directly run the `FinanceApp.java` file, or use the following commands if running from the command line:
