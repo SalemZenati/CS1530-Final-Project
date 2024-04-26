@@ -1,6 +1,6 @@
 # CS1530-Final-Project
 
-Creating a README file for your GitHub project is an essential way to introduce and explain your project to potential users, contributors, and fellow developers. Below is a sample README.md file for your FinanceApp project. This README includes sections that describe the project, how to set it up, how to use it, and how to contribute. You can adapt the content to match the specifics of your project and your workflow preferences.
+This is our finance app for the final project, the features worked on included the budget and monitor feature, the application is modular with an easy to improve upon codebase.
 
 ---
 
