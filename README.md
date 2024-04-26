@@ -57,9 +57,7 @@ Upon launching the application, you will be presented with a series of tabs:
 - **Monitor**: View all your financial accounts and the progress of your budgets.
 - The other tabs present are non-functional at the moment, but additional features can be added.
 
-```
-
-Remember to check if the project has a `pom.xml` file with the correct configuration for Maven and JavaFX. This file should define the dependencies and plugins needed to build and run your JavaFX application. If the project does not have one, or if it's not set up for JavaFX, you'll need to create or update it accordingly.
+Remember to check if the project has a `pom.xml` file with the correct configuration for Maven and JavaFX. This file should define the dependencies and plugins needed to build and run the JavaFX application. If the project does not have one, or if it's not set up for JavaFX, you'll need to create or update it accordingly.
 
 Upon launching the application, you will be presented with a series of tabs:
 - **Budget**: Manage and track your budgets.
