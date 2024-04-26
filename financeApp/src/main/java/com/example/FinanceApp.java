@@ -72,9 +72,7 @@ public class FinanceApp extends Application {
     // Method to load budgets into the ObservableList
     private ObservableList<Budget> loadBudgets() {
         ObservableList<Budget> budgetList = FXCollections.observableArrayList();
-        for (User user : users) {
-            budgetList.addAll(user.getBudgets());  // Assuming getBudgets correctly populates user budgets
-        }
+        budgetList.addAll(users.get(0).getBudgets());
         return budgetList;
     }    
 
