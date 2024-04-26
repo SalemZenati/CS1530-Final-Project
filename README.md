@@ -49,6 +49,8 @@ FinanceApp is a comprehensive financial management desktop application developed
 ### Configuration
 
 - Ensure that the `Data.txt` file is located in the root directory of the project or adjust the path in the `Parser.java` file accordingly.
+- If you would like to reset the Data file to the default state, you can copy all the contents of `Data backup.txt` and paste them into `Data.txt`. 
+This will reset everything on the next run of the application.
 
 ## Usage
 
