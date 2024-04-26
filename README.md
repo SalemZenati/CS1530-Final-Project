@@ -12,8 +12,6 @@ FinanceApp is a comprehensive financial management desktop application developed
 
 - **Budget Management**: Create, update, and view budgets with detailed spending tracking.
 - **Account Monitoring**: Overview of all personal accounts with real-time balance updates.
-- **Spending Tracker**: Track spending habits over time and categorize expenses.
-- **Financial Insights**: Dashboard providing insights into financial health and budget utilization.
 
 ## Getting Started
 
