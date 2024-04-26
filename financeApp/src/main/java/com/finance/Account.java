@@ -1,4 +1,4 @@
-package com.example;
+package com.finance;
 
 public class Account {
     private int aid;

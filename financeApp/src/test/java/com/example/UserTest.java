@@ -7,6 +7,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.finance.Account;
+import com.finance.User;
+
 public class UserTest {
 
     User user;
