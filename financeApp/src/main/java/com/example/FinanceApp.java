@@ -1,6 +1,7 @@
 package com.example;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
@@ -12,13 +13,23 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ComboBox;
 
 public class FinanceApp extends Application {
+
+    private static List<User> users = new ArrayList<>();  // Assuming User list is a class variable
+
+    public static void main(String[] args) {
+        try {
+            users = Parser.readDataFromFile("Data.txt");  // Load data
+            launch(args);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found... exiting.");
+            System.exit(0);
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -58,6 +69,15 @@ public class FinanceApp extends Application {
 
     private Text budgetDisplay = new Text();  // Class member for budget display
 
+    // Method to load budgets into the ObservableList
+    private ObservableList<Budget> loadBudgets() {
+        ObservableList<Budget> budgetList = FXCollections.observableArrayList();
+        for (User user : users) {
+            budgetList.addAll(user.getBudgets());  // Assuming getBudgets correctly populates user budgets
+        }
+        return budgetList;
+    }    
+
     private VBox createBudgetView() {
         VBox budgetView = new VBox(10);
         budgetView.setPadding(new Insets(15));
@@ -66,7 +86,8 @@ public class FinanceApp extends Application {
         Text title = new Text("Budget Management");
         title.setFont(new Font(20));
     
-        ObservableList<Budget> budgetList = FXCollections.observableArrayList();  // List to store budgets
+        // Load budgets from user data
+        ObservableList<Budget> budgetList = loadBudgets();
     
         ComboBox<Budget> budgetComboBox = new ComboBox<>(budgetList);
         budgetComboBox.setPromptText("Select a budget");
@@ -115,11 +136,22 @@ public class FinanceApp extends Application {
             }
         });
     
-        budgetView.getChildren().addAll(title, budgetComboBox, budgetNameLabel, budgetNameField, budgetAmountLabel, budgetAmountField, budgetSpentLabel, budgetSpentField, setBudgetButton, budgetDisplay);
+        budgetView.getChildren().addAll(
+            title, 
+            budgetComboBox, 
+            budgetNameLabel, 
+            budgetNameField, 
+            budgetAmountLabel, 
+            budgetAmountField, 
+            budgetSpentLabel, 
+            budgetSpentField, 
+            setBudgetButton, 
+            budgetDisplay
+        );
     
         return budgetView;
     }
-    
+     
     private void updateBudgetDisplay(Budget budget) {
         budgetDisplay.setText("Budget: " + budget.getName() +
                         "\nTotal Amount: " + budget.getBudgetAmount() +
@@ -150,17 +182,38 @@ public class FinanceApp extends Application {
         VBox monitorView = new VBox(10);
         monitorView.setPadding(new Insets(15));
         monitorView.setAlignment(Pos.TOP_CENTER);
-
+    
         Text title = new Text("Account Monitoring");
         title.setFont(new Font(20));
-
-        // Add components to monitorView here, like graphs and summary statistics
-        // ...
-
-        monitorView.getChildren().add(title);
-
+    
+        // Assuming User class has getAccounts and getBudgets methods
+        ListView<String> accountListView = new ListView<>();
+        ObservableList<String> accountsData = FXCollections.observableArrayList();
+        for (Account account : users.get(0).getAccounts()) {  // Assuming you want to display for the first user
+            accountsData.add(account.getAccountType() + " - Balance: $" + account.getBalance());
+        }
+        accountListView.setItems(accountsData);
+    
+        ListView<String> budgetListView = new ListView<>();
+        ObservableList<String> budgetsData = FXCollections.observableArrayList();
+        for (Budget budget : users.get(0).getBudgets()) {
+            double remaining = budget.getBudgetAmount() - budget.getBudgetSpent();
+            budgetsData.add(budget.getName() + " - Spent: $" + budget.getBudgetSpent() + " / " + budget.getBudgetAmount() + " (Remaining: $" + remaining + ")");
+        }
+        budgetListView.setItems(budgetsData);
+    
+        // Layout configuration
+        monitorView.getChildren().addAll(
+            title, 
+            new Label("Accounts:"),
+            accountListView,
+            new Label("Budgets:"),
+            budgetListView
+        );
+    
         return monitorView;
     }
+     
     // --------------------------------- SPENDING TAB --------------------------------------    
     // Extra tabs for "future implementation"
 
@@ -203,16 +256,4 @@ public class FinanceApp extends Application {
         return depositView;
     }
 
-    public static void main(String[] args) {
-        //reads data from file
-        List<User> users = null;
-        try{
-            users = Parser.readDataFromFile("data.txt");
-        } catch (FileNotFoundException e){
-            System.out.println("File not found... exiting.");
-            System.exit(0);
-        }
-        
-        launch(args);
-    }
 }
